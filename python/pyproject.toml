@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=77.0.3"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cardboard-client"
+version = "0.1.0"
+description = "Client for the public Cardboard trading API"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+
+[tool.setuptools]
+py-modules = ["cardboard_sdk"]

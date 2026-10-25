@@ -1,0 +1,11 @@
+node_modules/
+dist/
+target/
+__pycache__/
+.venv/
+.env
+*.keypair.json
+
+.cargo/
+*.egg-info/
+build/

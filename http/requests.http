@@ -1,0 +1,51 @@
+@base = https://cardboardtrade.xyz/v1
+@owner = REPLACE_WITH_USER_WALLET
+@authority = REPLACE_WITH_WALLET_OR_REGISTERED_SESSION
+@builder = REPLACE_WITH_BUILDER_WALLET
+@intent = REPLACE_WITH_PREPARED_INTENT_ID
+
+### Public market data
+GET {{base}}/accounts?kind=market
+
+### Personal account balances; no signature needed
+GET {{base}}/traders/{{owner}}
+
+### Personal open/closed positions; a full 500-row page continues after its last address
+GET {{base}}/positions/{{owner}}
+
+### Builder earnings (integer USDC base units)
+GET {{base}}/builders/{{builder}}/stats
+
+### Builder positions; follow next_cursor for another page
+GET {{base}}/builders/{{builder}}/positions?owner={{owner}}
+
+### Ask for a wallet proof. Sign message or transaction using a wallet, not HTTP.
+GET {{base}}/prepare-auth?owner={{owner}}&authority={{authority}}&lifetime_seconds=900
+
+### Prepare a personal order. Replace expiry/signature using the challenge above.
+POST {{base}}/prepare
+Content-Type: application/json
+
+{
+  "owner": "{{owner}}",
+  "authority": "{{authority}}",
+  "admission": {"expires_at": 0, "signature": "REPLACE_WITH_BASE64_WALLET_SIGNATURE"},
+  "action": "open", "market_id": 0, "margin": "10000000", "leverage": 10,
+  "is_long": true, "debt_funded": false,
+  "worst_price": "REPLACE_WITH_CURRENT_QUOTE_GUARD"
+}
+
+### Builder apps use the same prepare request, adding these three fields to its body:
+# "builder_wallet": "{{builder}}"
+# "builder_notional_markup_bps": 1000
+# "builder_profit_markup_bps": 1000
+
+### Submit only after wallet-signing the prepared transaction. Never retry blindly.
+POST {{base}}/relay
+Content-Type: application/json
+
+{"id":"{{intent}}","transaction":"REPLACE_WITH_BASE64_SIGNED_WIRE"}
+
+### Private status. Credential is base64(JSON {owner,authority,admission}).
+GET {{base}}/transactions/{{intent}}
+Authorization: Bearer REPLACE_WITH_BASE64_CREDENTIAL

@@ -1,0 +1,27 @@
+stages: [test]
+typescript:
+  image: node:24.3.0-bookworm
+  stage: test
+  script:
+    - cd typescript
+    - npm ci
+    - npm run build
+    - npm test
+python:
+  image: python:3.13-slim
+  stage: test
+  script:
+    - cd python
+    - python3 -m unittest -v test_client
+rust:
+  image: rust:latest
+  stage: test
+  variables:
+    CARGO_HOME: $CI_PROJECT_DIR/.cargo
+  cache:
+    key: rust-$CI_COMMIT_REF_SLUG
+    paths: [.cargo/registry, .cargo/git, rust/target]
+  script:
+    - cd rust
+    - cargo test --locked
+    - cargo clippy --all-targets --locked -- -D warnings
